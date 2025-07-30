@@ -27,6 +27,21 @@
       margin: 10px;
     }
 
+    #error {
+      color: red;
+      font-weight: bold;
+    }
+
+    #preview {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 12px 18px;
+      border-radius: 16px;
+      color: black;
+      font-weight: bold;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
     #chatUI {
       display: none;
     }
@@ -80,10 +95,6 @@
       cursor: pointer;
     }
 
-    #sendBtn:hover {
-      background-color: #20c25b;
-    }
-
     .username {
       font-weight: bold;
       margin-bottom: 4px;
@@ -98,6 +109,8 @@
   <div id="login">
     <input id="nameInput" placeholder="Enter your name..." />
     <button id="joinBtn">Join Chat</button>
+    <div id="error"></div>
+    <div id="preview"></div>
   </div>
 
   <div id="chatUI">
@@ -111,6 +124,7 @@
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
+
     const chat = document.getElementById('chat');
     const msgInput = document.getElementById('msg');
     const sendBtn = document.getElementById('sendBtn');
@@ -118,13 +132,16 @@
     const joinBtn = document.getElementById('joinBtn');
     const login = document.getElementById('login');
     const chatUI = document.getElementById('chatUI');
+    const error = document.getElementById('error');
+    const preview = document.getElementById('preview');
 
     let username = '';
     const userColors = {};
 
     function getColorForUser(name) {
+      if (!name) return null;
       if (userColors[name]) return userColors[name];
-      const colors = ['#ffd166', '#06d6a0', '#118ab2', '#f9844a', '#ef476f', '#9b5de5', '#00bbf9'];
+      const colors = ['#ffd166', '#06d6a0', '#118ab2', '#ef476f', '#f9844a', '#9b5de5', '#00bbf9'];
       let hash = 0;
       for (let i = 0; i < name.length; i++) {
         hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -134,9 +151,35 @@
       return userColors[name];
     }
 
+    nameInput.addEventListener('input', () => {
+      const name = nameInput.value.trim();
+      if (!name) {
+        error.textContent = "❌ Please type a name.";
+        preview.style.display = "none";
+        return;
+      }
+      if (name.length < 2) {
+        error.textContent = "❌ Name is too short.";
+        preview.style.display = "none";
+        return;
+      }
+      if (name.length > 20) {
+        error.textContent = "❌ Name is too long.";
+        preview.style.display = "none";
+        return;
+      }
+
+      error.textContent = "";
+      preview.style.display = "inline-block";
+      preview.style.backgroundColor = getColorForUser(name);
+      preview.textContent = name;
+    });
+
     joinBtn.onclick = () => {
       const inputName = nameInput.value.trim();
-      if (!inputName) return alert("Please enter your name.");
+      if (!inputName) return;
+      if (inputName.length < 2 || inputName.length > 20) return;
+
       username = inputName;
       login.style.display = 'none';
       chatUI.style.display = 'block';
@@ -151,7 +194,6 @@
     }
 
     sendBtn.onclick = sendMessage;
-
     msgInput.addEventListener('keydown', e => {
       if (e.key === 'Enter') sendMessage();
     });
