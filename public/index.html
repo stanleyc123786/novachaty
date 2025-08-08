@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>YR6 GC</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>💬 YR6 GC</header>
+
+  <form id="usernameForm">
+    <input id="usernameInput" placeholder="Enter your name" required />
+    <button type="submit">Join</button>
+  </form>
+
+  <ul id="chat" hidden></ul>
+
+  <footer hidden>
+    <input id="msg" placeholder="Type a message and hit Enter..." autocomplete="off" />
+  </footer>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
